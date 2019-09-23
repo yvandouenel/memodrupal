@@ -5,31 +5,62 @@ class Coopernet extends Component {
     super(props);
     this.state = {};
     this.url_serveur = "http://local.d8-json.my/";
+    this.token = "";
   }
-  token = () => {
+  createReqToken = (login,pwd) => {
     // création de la requête
     console.log("Dans token de coopernet");
     const req_token = new XMLHttpRequest();
     req_token.onload = () => {
       // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
-      this.getToken(req_token);
+      this.getToken(req_token,this.tokenSuccess,login,pwd);
     };
     // Fait appel au "end-point créé dans le module drupal memo"
     req_token.open("GET", this.url_serveur + "rest/session/token/", true);
     req_token.send(null);
   };
-  getToken = req => {
-    console.log("Dans geToken de coopernet");
+  getToken = (req,sucess,login,pwd) => {
+    console.log("Dans getToken de coopernet");
     // On teste directement le status de notre instance de XMLHttpRequest
     if (req.status === 200) {
-      // Tout baigne, voici le contenu de la réponse
+      // Tout baigne, voici le contenu du token
       console.log("token : ", req.responseText);
+      this.token = req.responseText
+      sucess(login,pwd);
+      return req.responseText;
     } else {
       // On y est pas encore, voici le statut actuel
       console.log("Pb getToken - Statut : ", req.status, req.statusText);
+      return "";
     }
   };
-
+  tokenSuccess = (login,pwd) => {
+    console.log("dans tokenSuccess");
+    console.log(login,pwd,this.token);
+    const req_user_login = new XMLHttpRequest();
+    req_user_login.onload = () => {
+      // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
+      this.postLogin(req_user_login);
+    };
+    // Fait appel au "end-point" de login
+    console.log("post login method : ",this.url_serveur + "/user/login?_format=json");
+    req_user_login.open("POST", this.url_serveur + "/user/login?_format=json", true);
+    req_user_login.responseType = 'json';
+    req_user_login.setRequestHeader('X-CSRF-Token', this.token);
+    req_user_login.send("name=" + login + "&pass=" + pwd);
+  }
+  postLogin = (req) => {
+    console.log("dans postLogin");
+    // On teste directement le status de notre instance de XMLHttpRequest
+    if (req.status === 200) {
+      // Tout baigne, voici le contenu de la réponse
+      console.log("login response : ", req.responseText);
+    } else {
+      // On y est pas encore, voici le statut actuel
+      console.log("Pb login - Statut : ", req.status, req.statusText);
+      return "";
+    }
+  }
   isLogged = (callbackSuccess, callbackFailed) => {
     console.log("Dans isLogged du component Coopernet");
 

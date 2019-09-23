@@ -7,6 +7,7 @@ class Tableaux extends Component {
       coopernet: new Coopernet(),
       userIsLogged: false
     };
+
   }
   // Permet d'appeler la méthode une fois que me composant est "monté"
   componentDidMount() {
@@ -42,7 +43,7 @@ class Tableaux extends Component {
     console.log("login : " + login.value);
     console.log("mdp : " + pwd.value);
     // Appel de la méthode pour récupérer le token
-    this.state.coopernet.token();
+    this.state.coopernet.createReqToken(login.value,pwd.value);
     event.preventDefault();
   };
   formLogin = () => {
