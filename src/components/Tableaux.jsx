@@ -19,11 +19,20 @@ class Tableaux extends Component {
     state.userIsLogged = false;
     this.setState(state);
   };
+  /**
+   * Teste si l'utilisateur n'est pas déjà logé
+   * Fonction visiblement valable uniquement quand l'appel a lieu
+   * depuis le même nom de domaine
+   */
   isLogged = () => {
     console.log("Dans isLogged ?");
     // Appel de la fonction
     this.state.coopernet.isLogged(this.successLog, this.failedLog);
   };
+  /**
+   * Sert aussi bien dans le cas où l'utilisateur est déjà logé
+   * ou dans le cas où il vient de se loger via le formulaire
+   */
   successLog = () => {
     console.log("Dans succesLog");
     const state = { ...this.state };
@@ -43,7 +52,7 @@ class Tableaux extends Component {
     console.log("login : " + login.value);
     console.log("mdp : " + pwd.value);
     // Appel de la méthode pour récupérer le token
-    this.state.coopernet.createReqToken(login.value,pwd.value);
+    this.state.coopernet.createReqToken(login.value,pwd.value,this.successLog,this.failedLog);
     event.preventDefault();
   };
   formLogin = () => {
