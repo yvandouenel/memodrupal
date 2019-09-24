@@ -6,6 +6,36 @@ class Coopernet extends Component {
     this.state = {};
     this.url_serveur = "http://local.d8-json.my/";
     this.token = "";
+    this.user = {
+      uid: 0,
+      uname: "",
+      upwd: ""
+    }
+  }
+  createReqTerms = (callbackSuccess, callbackFailed) => {
+    // création de la requête
+    console.log("Dans getTerms de coopernet");
+    const req_terms = new XMLHttpRequest();
+    req_terms.onload = () => {
+      // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
+      this.getTerms(req_terms, callbackSuccess, callbackFailed);
+    };
+    // Fait appel au "end-point créé dans le module drupal memo"
+    req_terms.open("GET", this.url_serveur + "memo/themes/", true);
+    req_terms.send(null);
+  }
+  getTerms = (req, callbackSuccess, callbackFailed) => {
+    console.log("Dans getTerms de coopernet");
+    // On teste directement le status de notre instance de XMLHttpRequest
+    if (req.status === 200) {
+      // Tout baigne, voici le contenu du token
+      console.log("terms : ", req.responseText);
+      let jsonResponse = JSON.parse(req.responseText);
+      callbackSuccess(jsonResponse);
+    } else {
+      // On y est pas encore, voici le statut actuel
+      console.log("Pb getTerms - Statut : ", req.status, req.statusText);
+    }
   }
   createReqToken = (login, pwd,callbackSuccess,callbackFailed) => {
     // création de la requête
@@ -54,9 +84,12 @@ class Coopernet extends Component {
         //console.log("success", data);
         if(data.current_user === undefined) {
           console.log("Erreur de login");
-          callbackFailed();
+          callbackFailed("Erreur de login ou de mot de passe");
         } else {
           console.log("user", data.current_user);
+          this.user.uid = data.current_user.uid;
+          this.user.uname = data.current_user.name;
+          this.user.upwd = pwd;
           callbackSuccess();
         }
 

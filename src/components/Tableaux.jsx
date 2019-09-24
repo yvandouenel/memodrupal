@@ -1,11 +1,15 @@
 import React, { Component } from "react";
 import Coopernet from "./Coopernet";
+import Term from "./Term";
+
 class Tableaux extends Component {
   constructor(props) {
     super(props);
     this.state = {
       coopernet: new Coopernet(),
-      userIsLogged: false
+      userIsLogged: false,
+      msgError: "",
+      terms: []
     };
 
   }
@@ -36,13 +40,27 @@ class Tableaux extends Component {
   successLog = () => {
     console.log("Dans succesLog");
     const state = { ...this.state };
+    console.log("user : ",this.state.coopernet.user.uid,this.state.coopernet.user.uname,this.state.coopernet.user.upwd);
     state.userIsLogged = true;
+    state.msgError = "";
+    this.setState(state);
+    // création de la requête pour obtenir les thématiques
+    this.state.coopernet.createReqTerms(this.succesTerms, this.failedTerms);
+  };
+  succesTerms = (terms) => {
+    console.log("Dans succesTerms");
+    const state = { ...this.state };
+    state.terms = terms;
     this.setState(state);
   };
-  failedLog = () => {
+  failedTerms = () => {
+    console.log("Dans failedTerms");
+  };
+  failedLog = (msg = "") => {
     console.log("Dans failedLog");
     const state = { ...this.state };
     state.userIsLogged = false;
+    if (msg) state.msgError = msg;
     this.setState(state);
   };
   handleSubmit = event => {
@@ -55,7 +73,7 @@ class Tableaux extends Component {
     this.state.coopernet.createReqToken(login.value,pwd.value,this.successLog,this.failedLog);
     event.preventDefault();
   };
-  formLogin = () => {
+  dumpFormLogin = () => {
     console.log("Dans formLogin");
     if (!this.state.userIsLogged) {
       return (
@@ -85,16 +103,29 @@ class Tableaux extends Component {
       );
     } else return "";
   };
+  dumpTerms = () => {
+    if(this.state.terms.length) {
+      return (
+        this.state.terms.map((term) => {
+          return <Term key={term.id} id={term.id} label={term.name} />
+        })
+      );
+    }
+  }
   render() {
     return (
       <div className="container">
         <h1>Memo</h1>
         {this.state.userIsLogged && (
           <div className="buttons-tableaux">
-            <h3>Utilisateur connecté</h3>
+            <h3>Utilisateur {this.state.coopernet.user.uname} connecté sur {this.state.coopernet.url_serveur}</h3>
           </div>
         )}
-        {this.formLogin()}
+        {this.dumpFormLogin()}
+        {this.state.msgError && (
+          <div className="alert alert-warning">{this.state.msgError}</div>
+        )}
+        {this.dumpTerms()}
       </div>
     );
   }

@@ -1,5 +1,6 @@
 {
   "name": "memo",
+  "homepage": "http://local.d8-json.my/memoreact",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
