@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Coopernet from "./Coopernet";
 import Term from "./Term";
+import Colonne from "./Colonne";
 
 class Tableaux extends Component {
   constructor(props) {
@@ -9,9 +10,9 @@ class Tableaux extends Component {
       coopernet: new Coopernet(),
       userIsLogged: false,
       msgError: "",
-      terms: []
+      terms: [],
+      colonnes: []
     };
-
   }
   // Permet d'appeler la méthode une fois que me composant est "monté"
   componentDidMount() {
@@ -40,21 +41,38 @@ class Tableaux extends Component {
   successLog = () => {
     console.log("Dans succesLog");
     const state = { ...this.state };
-    console.log("user : ",this.state.coopernet.user.uid,this.state.coopernet.user.uname,this.state.coopernet.user.upwd);
+    console.log(
+      "user : ",
+      this.state.coopernet.user.uid,
+      this.state.coopernet.user.uname,
+      this.state.coopernet.user.upwd
+    );
     state.userIsLogged = true;
     state.msgError = "";
     this.setState(state);
     // création de la requête pour obtenir les thématiques
     this.state.coopernet.createReqTerms(this.succesTerms, this.failedTerms);
   };
-  succesTerms = (terms) => {
+  succesTerms = terms => {
     console.log("Dans succesTerms");
+    console.log("Termes : ", terms);
     const state = { ...this.state };
     state.terms = terms;
     this.setState(state);
   };
   failedTerms = () => {
     console.log("Dans failedTerms");
+  };
+  succesCards = (cols) => {
+    console.log("Dans succesCards");
+    cols.sort((a,b) => a.id - b.id );
+    console.log("Colonnes : ", cols);
+    const state = { ...this.state };
+    state.colonnes = cols;
+    this.setState(state);
+  };
+  failedCards = () => {
+    console.log("Dans failedCards");
   };
   failedLog = (msg = "") => {
     console.log("Dans failedLog");
@@ -70,7 +88,12 @@ class Tableaux extends Component {
     console.log("login : " + login.value);
     console.log("mdp : " + pwd.value);
     // Appel de la méthode pour récupérer le token
-    this.state.coopernet.createReqToken(login.value,pwd.value,this.successLog,this.failedLog);
+    this.state.coopernet.createReqToken(
+      login.value,
+      pwd.value,
+      this.successLog,
+      this.failedLog
+    );
     event.preventDefault();
   };
   dumpFormLogin = () => {
@@ -104,21 +127,47 @@ class Tableaux extends Component {
     } else return "";
   };
   dumpTerms = () => {
-    if(this.state.terms.length) {
-      return (
-        this.state.terms.map((term) => {
-          return <Term key={term.id} id={term.id} label={term.name} />
-        })
-      );
+    if (this.state.terms.length) {
+      return this.state.terms.map(term => {
+        return (
+          <Term
+            key={term.id}
+            id={term.id}
+            label={term.name}
+            onClick={this.state.coopernet.createReqCards}
+            onSuccess={this.succesCards}
+            onFailed={this.failedCards}
+          />
+        );
+      });
     }
-  }
+  };
+  dumpColumn = () => {
+    if (this.state.colonnes.length) {
+      return (
+        <div className="row">
+        {this.state.colonnes.map(col => {
+        return (
+          <Colonne
+            key={col.id}
+            id={col.id}
+            label={col.name}
+            cards={col.cartes}
+          />
+        );
+      })}</div>);
+    }
+  };
   render() {
     return (
       <div className="container">
         <h1>Memo</h1>
         {this.state.userIsLogged && (
           <div className="buttons-tableaux">
-            <h3>Utilisateur {this.state.coopernet.user.uname} connecté sur {this.state.coopernet.url_serveur}</h3>
+            <h3>
+              Utilisateur {this.state.coopernet.user.uname} connecté sur{" "}
+              {this.state.coopernet.url_serveur}
+            </h3>
           </div>
         )}
         {this.dumpFormLogin()}
@@ -126,6 +175,7 @@ class Tableaux extends Component {
           <div className="alert alert-warning">{this.state.msgError}</div>
         )}
         {this.dumpTerms()}
+        {this.dumpColumn()}
       </div>
     );
   }

@@ -12,9 +12,36 @@ class Coopernet extends Component {
       upwd: ""
     }
   }
+  createReqCards = (termNumber, callbackSuccess, callbackFailed) => {
+    // création de la requête
+    console.log("Dans createReqCards de coopernet");
+    const req_cards = new XMLHttpRequest();
+    req_cards.onload = () => {
+      // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
+      this.getCards(req_cards, termNumber, callbackSuccess, callbackFailed);
+    };
+    // Fait appel au "end-point créé dans le module drupal memo"
+    req_cards.open("GET", this.url_serveur +
+    "memo/list_cartes_term/" +
+    this.user.uid +
+    "/" + termNumber, true);
+    req_cards.send(null);
+  }
+  getCards = (req, termNumber, callbackSuccess, callbackFailed) => {
+    console.log("Dans getCards de coopernet");
+    // On teste directement le status de notre instance de XMLHttpRequest
+    if (req.status === 200) {
+      // Tout baigne, voici le contenu du token
+      let jsonResponse = JSON.parse(req.responseText);
+      callbackSuccess(jsonResponse);
+    } else {
+      // On y est pas encore, voici le statut actuel
+      console.log("Pb getCards - Statut : ", req.status, req.statusText);
+    }
+  }
   createReqTerms = (callbackSuccess, callbackFailed) => {
     // création de la requête
-    console.log("Dans getTerms de coopernet");
+    console.log("Dans createReqTerms de coopernet");
     const req_terms = new XMLHttpRequest();
     req_terms.onload = () => {
       // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
@@ -39,7 +66,7 @@ class Coopernet extends Component {
   }
   createReqToken = (login, pwd,callbackSuccess,callbackFailed) => {
     // création de la requête
-    console.log("Dans token de coopernet");
+    console.log("Dans createReqToken de coopernet");
     const req_token = new XMLHttpRequest();
     req_token.onload = () => {
       // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
@@ -65,7 +92,7 @@ class Coopernet extends Component {
     }
   };
   tokenSuccess = (login, pwd, callbackSuccess, callbackFailed) => {
-    console.log("dans tokenSuccess");
+    console.log("dans tokenSuccess de coopernet");
     console.log(login, pwd, this.token);
     // utilisation de fetch
     fetch("http://local.d8-json.my/user/login?_format=json", {
@@ -114,7 +141,7 @@ class Coopernet extends Component {
     req_user_login.send(JSON.stringify({ "data": {"name": "jose","pass": "jose"}})); */
   };
   postLogin = req => {
-    console.log("dans postLogin");
+    console.log("dans postLogin de coopernet");
     // On teste directement le status de notre instance de XMLHttpRequest
     if (req.status === 200) {
       // Tout baigne, voici le contenu de la réponse
@@ -125,8 +152,9 @@ class Coopernet extends Component {
       return "";
     }
   };
+
   isLogged = (callbackSuccess, callbackFailed) => {
-    console.log("Dans isLogged du component Coopernet");
+    console.log("Dans isLogged de Coopernet");
 
     // création de la requête
     const req_logged = new XMLHttpRequest();
@@ -140,6 +168,7 @@ class Coopernet extends Component {
   };
   getIsLogged = (req, callbackSuccess, callbackFailed) => {
     // On teste directement le status de notre instance de XMLHttpRequest
+    console.log("dans getIsLogged de coopernet");
     if (req.status === 200) {
       // Tout baigne, voici le contenu de la réponse
       console.log("Appel à /memo/is_logged ok");
