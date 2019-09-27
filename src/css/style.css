@@ -1,0 +1,20 @@
+/* Media queries */
+@media (min-width: 1500px) {
+  .container {
+    max-width: 1440px !important;
+  }
+}
+@media (min-width: 1800px) {
+  .container {
+    max-width: 1740px !important;
+  }
+}
+/* general */
+.right {
+  float: right !important;
+  margin-left: 20px;
+}
+.left {
+  float: left !important;
+  margin-right: 20px;
+}

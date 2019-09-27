@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Coopernet from "./Coopernet";
 import Term from "./Term";
 import Colonne from "./Colonne";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 class Tableaux extends Component {
   constructor(props) {
@@ -9,10 +11,12 @@ class Tableaux extends Component {
     this.state = {
       coopernet: new Coopernet(),
       userIsLogged: false,
+      addingACard: false,
       msgError: "",
       terms: [],
       colonnes: []
     };
+    this.dumpModal = true;
   }
   // Permet d'appeler la méthode une fois que me composant est "monté"
   componentDidMount() {
@@ -39,7 +43,7 @@ class Tableaux extends Component {
    * ou dans le cas où il vient de se loger via le formulaire
    */
   successLog = () => {
-    console.log("Dans succesLog");
+    console.log("Dans successLog");
     const state = { ...this.state };
     console.log(
       "user : ",
@@ -51,10 +55,16 @@ class Tableaux extends Component {
     state.msgError = "";
     this.setState(state);
     // création de la requête pour obtenir les thématiques
-    this.state.coopernet.createReqTerms(this.succesTerms, this.failedTerms);
+    this.state.coopernet.createReqTerms(this.successTerms, this.failedTerms);
   };
-  succesTerms = terms => {
-    console.log("Dans succesTerms");
+  successAddCard = msg => {
+    console.log("Dans successAddCard");
+  };
+  failedAddCard = () => {
+    console.log("Dans failedAddCard");
+  };
+  successTerms = terms => {
+    console.log("Dans successTerms");
     console.log("Termes : ", terms);
     const state = { ...this.state };
     state.terms = terms;
@@ -63,8 +73,8 @@ class Tableaux extends Component {
   failedTerms = () => {
     console.log("Dans failedTerms");
   };
-  succesCards = (cols) => {
-    console.log("Dans succesCards");
+  successCards = (cols) => {
+    console.log("Dans successCards");
     cols.sort((a,b) => a.id - b.id );
     console.log("Colonnes : ", cols);
     const state = { ...this.state };
@@ -81,6 +91,70 @@ class Tableaux extends Component {
     if (msg) state.msgError = msg;
     this.setState(state);
   };
+  handleSubmitAddCard = event => {
+    console.log("dans handleSubmitAddCard");
+
+    event.preventDefault();
+  };
+  handleCloseForm = event => {
+    console.log("dans handleCloseForm");
+    const state = { ...this.state };
+    state.addingACard = false;
+    this.setState(state);
+  };
+  dumpFormAddCard = () => {
+    console.log("Dans dumpFormAddCard");
+    if (this.state.addingACard) {
+      console.log("addingACard = yes");
+      return (
+        <Modal
+            show={this.dumpModal}
+            size="lg"
+            className="modal-large"
+          >
+            <Modal.Header >
+              <Modal.Title>Modifier une question et/ou une réponse</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {
+                /* formulaire ici */
+                <form onSubmit={(e) => {this.props.onSubmitQR(e)}}>
+                  <label className="label-large">
+                    question:
+                    <input
+                      type="text"
+                      autoFocus
+                      className="ml-4 input-large"
+                      value={this.props.question}
+
+                    />
+                  </label>
+                  <label className="label-large">
+                    Réponse:
+                    <textarea
+                      type="text"
+                      autoFocus
+                      className="ml-4 textarea-large"
+                      value={this.props.reponse}
+
+                    />
+                  </label>
+
+                </form>
+              }
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="primary" onClick={e =>
+                        this.handleCloseForm()
+                      }>
+                Fermer
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
+      );
+    } else return "";
+  }
   handleSubmit = event => {
     console.log("Le formulaire a été soumis : ");
     const login = document.getElementById("edit-name");
@@ -100,23 +174,23 @@ class Tableaux extends Component {
     console.log("Dans formLogin");
     if (!this.state.userIsLogged) {
       return (
-        <form id="login" onSubmit={this.handleSubmit}>
-          <label>
+        <form id="add_card" onSubmit={this.handleSubmit}>
+          <label className="mr-4">
             login :
             <input
               id="edit-name"
               name="name"
               type="text"
-              className="validate"
+              className="validate ml-2"
             />
           </label>
-          <label>
+          <label className="mr-4">
             mot de passe :
             <input
               id="edit-pass"
               name="pass"
               type="password"
-              className="validate"
+              className="validate ml-2"
             />
           </label>
           <button type="submit" className="btn btn-default btn-submit">
@@ -126,6 +200,7 @@ class Tableaux extends Component {
       );
     } else return "";
   };
+
   dumpTerms = () => {
     if (this.state.terms.length) {
       return this.state.terms.map(term => {
@@ -135,13 +210,19 @@ class Tableaux extends Component {
             id={term.id}
             label={term.name}
             onClick={this.state.coopernet.createReqCards}
-            onSuccess={this.succesCards}
+            onSuccess={this.successCards}
             onFailed={this.failedCards}
           />
         );
       });
     }
   };
+  changeStateAddingACard = () => {
+    console.log("dans changeStateAddingACard");
+    const state = {...this.state};
+    state.addingACard = true;
+    this.setState(state);
+  }
   dumpColumn = () => {
     if (this.state.colonnes.length) {
       return (
@@ -153,6 +234,11 @@ class Tableaux extends Component {
             id={col.id}
             label={col.name}
             cards={col.cartes}
+            onClickAddCard={this.changeStateAddingACard}
+            /* login={this.state.coopernet.user.uname}
+            pwd={this.state.coopernet.user.upwd}
+            onSuccess={this.successAddCard}
+            onFailed={this.failedAddCard} */
           />
         );
       })}</div>);
@@ -174,6 +260,7 @@ class Tableaux extends Component {
         {this.state.msgError && (
           <div className="alert alert-warning">{this.state.msgError}</div>
         )}
+        {this.dumpFormAddCard()}
         {this.dumpTerms()}
         {this.dumpColumn()}
       </div>

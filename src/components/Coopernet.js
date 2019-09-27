@@ -10,8 +10,61 @@ class Coopernet extends Component {
       uid: 0,
       uname: "",
       upwd: ""
-    }
+    };
   }
+  createReqAddCards = (login, pwd, callbackSuccess, callbackFailed) => {
+    // création de la requête
+    console.log("Dans createReqAddCards de coopernet");
+    //console.log(login, pwd, this.token, callbackSuccess,, callbackFailed);
+    // utilisation de fetch
+    fetch("http://local.d8-json.my/entity/node?_format=hal_json", {
+    // permet d'accepter les cookies ?
+    credentials: 'same-origin',
+      method: "POST",
+      headers: {
+        "Content-Type": "application/hal+json",
+        "X-CSRF-Token": this.token,
+        "Authorization": "Basic " + btoa(login + ":" + pwd)
+      },
+      body: JSON.stringify({
+        "_links": {
+          "type": {
+            "href":"http://local.d8-json.my/rest/type/node/carte"
+          }
+        },
+        "title":[{
+          "value":"Syntaxe objet js littéral ?"
+        }],
+        "field_carte_question":[{
+          "value": "Syntaxe objet js littéral ?"
+        }],
+        "field_carte_reponse":[{
+          "value": "{}"
+        }],
+        "field_carte_colonne":[{
+          "target_id": "32",
+          "url": "/taxonomy/term/32"
+        }],
+        "field_carte_thematique":[{
+          "target_id": "38",
+          "url": "/taxonomy/term/38"
+        }],
+        "type":[{
+          "target_id":"carte"
+        }]
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("data reçues le :", data.created[0].value);
+        if (data.created[0].value) {
+          callbackSuccess();
+        } else {
+          callbackFailed("Erreur de login ou de mot de passe");
+        }
+      });
+  };
+
   createReqCards = (termNumber, callbackSuccess, callbackFailed) => {
     // création de la requête
     console.log("Dans createReqCards de coopernet");
@@ -21,12 +74,20 @@ class Coopernet extends Component {
       this.getCards(req_cards, termNumber, callbackSuccess, callbackFailed);
     };
     // Fait appel au "end-point créé dans le module drupal memo"
-    req_cards.open("GET", this.url_serveur +
-    "memo/list_cartes_term/" +
-    this.user.uid +
-    "/" + termNumber, true);
+    // Pour régler le problème de cache, j'ai ajouté le paramètre "time" à la
+    // requête get cf : https://drupal.stackexchange.com/questions/222467/drupal-8-caches-rest-api-calls/222482
+    req_cards.open(
+      "GET",
+      this.url_serveur +
+        "memo/list_cartes_term/" +
+        this.user.uid +
+        "/" +
+        termNumber+
+        "&time=" + Math.floor(Math.random() * 10000),
+      true
+    );
     req_cards.send(null);
-  }
+  };
   getCards = (req, termNumber, callbackSuccess, callbackFailed) => {
     console.log("Dans getCards de coopernet");
     // On teste directement le status de notre instance de XMLHttpRequest
@@ -38,7 +99,7 @@ class Coopernet extends Component {
       // On y est pas encore, voici le statut actuel
       console.log("Pb getCards - Statut : ", req.status, req.statusText);
     }
-  }
+  };
   createReqTerms = (callbackSuccess, callbackFailed) => {
     // création de la requête
     console.log("Dans createReqTerms de coopernet");
@@ -50,7 +111,7 @@ class Coopernet extends Component {
     // Fait appel au "end-point créé dans le module drupal memo"
     req_terms.open("GET", this.url_serveur + "memo/themes/", true);
     req_terms.send(null);
-  }
+  };
   getTerms = (req, callbackSuccess, callbackFailed) => {
     console.log("Dans getTerms de coopernet");
     // On teste directement le status de notre instance de XMLHttpRequest
@@ -63,20 +124,27 @@ class Coopernet extends Component {
       // On y est pas encore, voici le statut actuel
       console.log("Pb getTerms - Statut : ", req.status, req.statusText);
     }
-  }
-  createReqToken = (login, pwd,callbackSuccess,callbackFailed) => {
+  };
+  createReqToken = (login, pwd, callbackSuccess, callbackFailed) => {
     // création de la requête
     console.log("Dans createReqToken de coopernet");
     const req_token = new XMLHttpRequest();
     req_token.onload = () => {
       // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
-      this.getToken(req_token, this.tokenSuccess, login, pwd, callbackSuccess, callbackFailed);
+      this.getToken(
+        req_token,
+        this.tokenSuccess,
+        login,
+        pwd,
+        callbackSuccess,
+        callbackFailed
+      );
     };
     // Fait appel au "end-point créé dans le module drupal memo"
     req_token.open("GET", this.url_serveur + "rest/session/token/", true);
     req_token.send(null);
   };
-  getToken = (req, sucess, login, pwd,callbackSuccess,callbackFailed) => {
+  getToken = (req, sucess, login, pwd, callbackSuccess, callbackFailed) => {
     console.log("Dans getToken de coopernet");
     // On teste directement le status de notre instance de XMLHttpRequest
     if (req.status === 200) {
@@ -96,6 +164,7 @@ class Coopernet extends Component {
     console.log(login, pwd, this.token);
     // utilisation de fetch
     fetch("http://local.d8-json.my/user/login?_format=json", {
+      credentials: 'same-origin',
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -109,7 +178,7 @@ class Coopernet extends Component {
       .then(response => response.json())
       .then(data => {
         //console.log("success", data);
-        if(data.current_user === undefined) {
+        if (data.current_user === undefined) {
           console.log("Erreur de login");
           callbackFailed("Erreur de login ou de mot de passe");
         } else {
@@ -119,7 +188,6 @@ class Coopernet extends Component {
           this.user.upwd = pwd;
           callbackSuccess();
         }
-
       });
     /**
      * Je ne suis pas arrivé à faire fonctionner la requête avec l'objet XMLHttpRequest
