@@ -12,45 +12,104 @@ class Coopernet extends Component {
       upwd: ""
     };
   }
-  createReqAddCards = (login, pwd, question, reponse, themeid, columnid, callbackSuccess, callbackFailed) => {
+  removeCard = (num_card,login, pwd, callbackSuccess, callbackFailed) => {
+    console.log("dans removeCard - carte " + num_card);
+    // utilisation de fetch
+    fetch("http://local.d8-json.my/node/" + num_card + "?_format=hal_json", {
+      // permet d'accepter les cookies ?
+      credentials: "same-origin",
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/hal+json",
+        "X-CSRF-Token": this.token,
+        Authorization: "Basic " + btoa(login + ":" + pwd)
+      },
+      body: JSON.stringify({
+        _links: {
+          type: {
+            href: "http://local.d8-json.my/rest/type/node/carte"
+          }
+        },
+
+        type: [
+          {
+            target_id: "carte"
+          }
+        ]
+      })
+    })
+      .then(response => response)
+      .then(data => {
+        console.log("data reçues:", data);
+        if(data.status === 204) {
+          callbackSuccess();
+        } else {
+          callbackFailed();
+        }
+
+      });
+  };
+
+  createReqAddCards = (
+    login,
+    pwd,
+    question,
+    reponse,
+    themeid,
+    columnid,
+    callbackSuccess,
+    callbackFailed
+  ) => {
     console.log("Dans createReqAddCards de coopernet");
     // création de la requête
     // utilisation de fetch
     fetch("http://local.d8-json.my/entity/node?_format=hal_json", {
-    // permet d'accepter les cookies ?
-    credentials: 'same-origin',
+      // permet d'accepter les cookies ?
+      credentials: "same-origin",
       method: "POST",
       headers: {
         "Content-Type": "application/hal+json",
         "X-CSRF-Token": this.token,
-        "Authorization": "Basic " + btoa(login + ":" + pwd)
+        Authorization: "Basic " + btoa(login + ":" + pwd)
       },
       body: JSON.stringify({
-        "_links": {
-          "type": {
-            "href":"http://local.d8-json.my/rest/type/node/carte"
+        _links: {
+          type: {
+            href: "http://local.d8-json.my/rest/type/node/carte"
           }
         },
-        "title":[{
-          "value": question
-        }],
-        "field_carte_question":[{
-          "value": question
-        }],
-        "field_carte_reponse":[{
-          "value": reponse
-        }],
-        "field_carte_colonne":[{
-          "target_id": columnid,
-          "url": "/taxonomy/term/" + columnid
-        }],
-        "field_carte_thematique":[{
-          "target_id": themeid,
-          "url": "/taxonomy/term/" + themeid
-        }],
-        "type":[{
-          "target_id":"carte"
-        }]
+        title: [
+          {
+            value: question
+          }
+        ],
+        field_carte_question: [
+          {
+            value: question
+          }
+        ],
+        field_carte_reponse: [
+          {
+            value: reponse
+          }
+        ],
+        field_carte_colonne: [
+          {
+            target_id: columnid,
+            url: "/taxonomy/term/" + columnid
+          }
+        ],
+        field_carte_thematique: [
+          {
+            target_id: themeid,
+            url: "/taxonomy/term/" + themeid
+          }
+        ],
+        type: [
+          {
+            target_id: "carte"
+          }
+        ]
       })
     })
       .then(response => response.json())
@@ -81,8 +140,9 @@ class Coopernet extends Component {
         "memo/list_cartes_term/" +
         this.user.uid +
         "/" +
-        termNumber+
-        "&time=" + Math.floor(Math.random() * 10000),
+        termNumber +
+        "&time=" +
+        Math.floor(Math.random() * 10000),
       true
     );
     req_cards.send(null);
@@ -170,7 +230,7 @@ class Coopernet extends Component {
     console.log(login, pwd, this.token);
     // utilisation de fetch
     fetch("http://local.d8-json.my/user/login?_format=json", {
-      credentials: 'same-origin',
+      credentials: "same-origin",
       method: "POST",
       headers: {
         "Content-Type": "application/json",

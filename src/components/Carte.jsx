@@ -5,15 +5,14 @@ class Carte extends Component {
   state = {};
   render() {
     return (
-      <div className="bg-secondary text-light p-2 mb-2 rounded" id={this.props.card.id}>
+      <div
+        className="bg-secondary text-light p-2 mb-2 rounded"
+        id={this.props.card.id}
+      >
         <h4
           className=""
           onClick={e => {
-            this.props.onShowReponse(
-              e,
-              this.props.card,
-              this.props.colonne,
-            );
+            this.props.onShowReponse(e, this.props.card, this.props.colonne);
           }}
         >
           {this.props.question}
@@ -42,9 +41,11 @@ class Carte extends Component {
                 variant="warning"
                 onClick={() =>
                   this.props.onRemove(
-                    this.props.carte,
-                    this.props.colonne,
-                    this.props.tableau
+                    this.props.card.id,
+                    this.props.user.uname,
+                    this.props.user.upwd,
+                    this.props.successRemoveCard,
+                    this.props.failedRemoveCard
                   )
                 }
                 className="ml-4 bg-danger text-white"

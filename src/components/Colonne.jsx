@@ -28,7 +28,11 @@ class Colonne extends Component {
               colonneId={this.props.id}
               colonne={this.props.colonne}
               onShowReponse={this.props.onShowReponse}
+              onRemove={this.props.onRemove}
               show_reponse={card.show_reponse}
+              user={this.props.user}
+              successRemoveCard={this.props.successRemoveCard}
+              failedRemoveCard={this.props.failedRemoveCard}
             />
           );
         })}

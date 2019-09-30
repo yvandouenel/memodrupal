@@ -71,6 +71,18 @@ class Tableaux extends Component {
   failedAddCard = () => {
     console.log("Dans failedAddCard");
   };
+  successRemoveCard = () => {
+    console.log("Dans successRemoveCard " + this.themeId);
+    // Rappel de la fonction qui va chercher la liste des cartes pour une thématique
+    this.state.coopernet.createReqCards(
+      this.themeId,
+      this.successCards,
+      this.failedCards
+    );
+  };
+  failedRemoveCard = () => {
+    console.log("Dans failedRemoveCard");
+  };
   successTerms = terms => {
     console.log("Dans successTerms");
     console.log("Termes : ", terms);
@@ -244,7 +256,7 @@ class Tableaux extends Component {
     }
   };
   changeStateAddingACard = numCol => {
-    console.log("dans changeStateAddingACard");
+    console.log("dans' changeStateAddingACard");
     console.log("Numéro de colonne dans laquelle ajouter la carte : " + numCol);
     this.numCol = numCol;
     const state = { ...this.state };
@@ -265,6 +277,10 @@ class Tableaux extends Component {
                 cards={col.cartes}
                 onClickAddCard={this.changeStateAddingACard}
                 onShowReponse={this.changeStateReponse}
+                onRemove={this.state.coopernet.removeCard}
+                user={this.state.coopernet.user}
+                successRemoveCard={this.successRemoveCard}
+                failedRemoveCard={this.failedRemoveCard}
               />
             );
           })}
