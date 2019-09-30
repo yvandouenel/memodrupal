@@ -12,10 +12,9 @@ class Coopernet extends Component {
       upwd: ""
     };
   }
-  createReqAddCards = (login, pwd, callbackSuccess, callbackFailed) => {
-    // création de la requête
+  createReqAddCards = (login, pwd, question, reponse, themeid, columnid, callbackSuccess, callbackFailed) => {
     console.log("Dans createReqAddCards de coopernet");
-    //console.log(login, pwd, this.token, callbackSuccess,, callbackFailed);
+    // création de la requête
     // utilisation de fetch
     fetch("http://local.d8-json.my/entity/node?_format=hal_json", {
     // permet d'accepter les cookies ?
@@ -33,21 +32,21 @@ class Coopernet extends Component {
           }
         },
         "title":[{
-          "value":"Syntaxe objet js littéral ?"
+          "value": question
         }],
         "field_carte_question":[{
-          "value": "Syntaxe objet js littéral ?"
+          "value": question
         }],
         "field_carte_reponse":[{
-          "value": "{}"
+          "value": reponse
         }],
         "field_carte_colonne":[{
-          "target_id": "32",
-          "url": "/taxonomy/term/32"
+          "target_id": columnid,
+          "url": "/taxonomy/term/" + columnid
         }],
         "field_carte_thematique":[{
-          "target_id": "38",
-          "url": "/taxonomy/term/38"
+          "target_id": themeid,
+          "url": "/taxonomy/term/" + themeid
         }],
         "type":[{
           "target_id":"carte"
@@ -58,7 +57,7 @@ class Coopernet extends Component {
       .then(data => {
         console.log("data reçues le :", data.created[0].value);
         if (data.created[0].value) {
-          callbackSuccess();
+          callbackSuccess(themeid);
         } else {
           callbackFailed("Erreur de login ou de mot de passe");
         }
@@ -94,7 +93,14 @@ class Coopernet extends Component {
     if (req.status === 200) {
       // Tout baigne, voici le contenu du token
       let jsonResponse = JSON.parse(req.responseText);
-      callbackSuccess(jsonResponse);
+      // ajout de la propriété show_reponse à chaque carte
+      console.log("Ajout prop carte");
+      jsonResponse.forEach(function(element) {
+        element.cartes.forEach(function(ele) {
+          ele.show_reponse = false;
+        });
+      });
+      callbackSuccess(jsonResponse, termNumber);
     } else {
       // On y est pas encore, voici le statut actuel
       console.log("Pb getCards - Statut : ", req.status, req.statusText);

@@ -5,7 +5,11 @@ class Term extends Component {
     return (
       <button
         onClick={e => {
-          this.props.onClick(this.props.id, this.props.onSuccess, this.props.onFailed);
+          this.props.onClick(
+            this.props.id,
+            this.props.onSuccess,
+            this.props.onFailed
+          );
         }}
         className="btn btn-secondary m-2"
         id={this.props.id}

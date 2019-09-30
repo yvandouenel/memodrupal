@@ -11,7 +11,7 @@ class Colonne extends Component {
             type="button"
             className="btn btn-success left"
             onClick={() => {
-              this.props.onClickAddCard();
+              this.props.onClickAddCard(this.props.id);
             }}
           >
             +
@@ -19,7 +19,18 @@ class Colonne extends Component {
           {this.props.label}
         </h3>
         {this.props.cards.map(card => {
-          return <Carte key={card.id} question={card.question} />;
+          return (
+            <Carte
+              key={card.id}
+              question={card.question}
+              reponse={card.reponse}
+              card={card}
+              colonneId={this.props.id}
+              colonne={this.props.colonne}
+              onShowReponse={this.props.onShowReponse}
+              show_reponse={card.show_reponse}
+            />
+          );
         })}
       </div>
     );

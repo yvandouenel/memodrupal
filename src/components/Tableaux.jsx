@@ -17,6 +17,8 @@ class Tableaux extends Component {
       colonnes: []
     };
     this.dumpModal = true;
+    this.themeId = 0;
+    this.columnId = 0;
   }
   // Permet d'appeler la méthode une fois que me composant est "monté"
   componentDidMount() {
@@ -57,8 +59,14 @@ class Tableaux extends Component {
     // création de la requête pour obtenir les thématiques
     this.state.coopernet.createReqTerms(this.successTerms, this.failedTerms);
   };
-  successAddCard = msg => {
+  successAddCard = themeid => {
     console.log("Dans successAddCard");
+    // Rappel de la fonction qui va chercher la liste des cartes pour une thématique
+    this.state.coopernet.createReqCards(
+      themeid,
+      this.successCards,
+      this.failedCards
+    );
   };
   failedAddCard = () => {
     console.log("Dans failedAddCard");
@@ -73,12 +81,15 @@ class Tableaux extends Component {
   failedTerms = () => {
     console.log("Dans failedTerms");
   };
-  successCards = (cols) => {
+  successCards = (cols, termId) => {
     console.log("Dans successCards");
-    cols.sort((a,b) => a.id - b.id );
+    cols.sort((a, b) => a.id - b.id);
     console.log("Colonnes : ", cols);
     const state = { ...this.state };
     state.colonnes = cols;
+
+    // on sait maintenant quel term (thématique) est affiché
+    this.themeId = termId;
     this.setState(state);
   };
   failedCards = () => {
@@ -93,8 +104,24 @@ class Tableaux extends Component {
   };
   handleSubmitAddCard = event => {
     console.log("dans handleSubmitAddCard");
-
     event.preventDefault();
+    // récupération des éléments du formulaire
+    const inputQuestion = document.getElementById("inputquestion").value;
+    const inputReponse = document.getElementById("inputreponse").value;
+
+    this.state.coopernet.createReqAddCards(
+      this.state.coopernet.user.uname,
+      this.state.coopernet.user.upwd,
+      inputQuestion,
+      inputReponse,
+      this.themeId,
+      this.numCol,
+      this.successAddCard,
+      this.failedAddCard
+    );
+    const state = { ...this.state };
+    state.addingACard = false;
+    this.setState(state);
   };
   handleCloseForm = event => {
     console.log("dans handleCloseForm");
@@ -105,56 +132,55 @@ class Tableaux extends Component {
   dumpFormAddCard = () => {
     console.log("Dans dumpFormAddCard");
     if (this.state.addingACard) {
-      console.log("addingACard = yes");
+      console.log("addingACard = yes", "theme = " + this.themeId);
       return (
-        <Modal
-            show={this.dumpModal}
-            size="lg"
-            className="modal-large"
-          >
-            <Modal.Header >
-              <Modal.Title>Modifier une question et/ou une réponse</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              {
-                /* formulaire ici */
-                <form onSubmit={(e) => {this.props.onSubmitQR(e)}}>
-                  <label className="label-large">
-                    question:
-                    <input
-                      type="text"
-                      autoFocus
-                      className="ml-4 input-large"
-                      value={this.props.question}
-
-                    />
-                  </label>
-                  <label className="label-large">
-                    Réponse:
-                    <textarea
-                      type="text"
-                      autoFocus
-                      className="ml-4 textarea-large"
-                      value={this.props.reponse}
-
-                    />
-                  </label>
-
-                </form>
-              }
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="primary" onClick={e =>
-                        this.handleCloseForm()
-                      }>
-                Fermer
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
+        <Modal show={this.dumpModal} size="lg" className="modal-large">
+          <Modal.Header>
+            <Modal.Title>Modifier une question et/ou une réponse</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {
+              /* formulaire ici */
+              <form
+                onSubmit={e => {
+                  this.handleSubmitAddCard(e);
+                }}
+              >
+                <label className="label-large">
+                  question:
+                  <input
+                    type="text"
+                    id="inputquestion"
+                    autoFocus
+                    className="ml-4 input-large"
+                    value={this.props.question}
+                  />
+                </label>
+                <label className="label-large">
+                  Réponse:
+                  <textarea
+                    type="text"
+                    autoFocus
+                    className="ml-4 textarea-large"
+                    id="inputreponse"
+                    value={this.props.reponse}
+                  />
+                </label>
+                <button type="submit" className="btn btn-default btn-submit">
+                  Envoyer
+                </button>
+              </form>
+            }
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="primary" onClick={e => this.handleCloseForm()}>
+              Fermer
+            </Button>
+          </Modal.Footer>
+        </Modal>
       );
     } else return "";
-  }
+  };
   handleSubmit = event => {
     console.log("Le formulaire a été soumis : ");
     const login = document.getElementById("edit-name");
@@ -217,32 +243,54 @@ class Tableaux extends Component {
       });
     }
   };
-  changeStateAddingACard = () => {
+  changeStateAddingACard = numCol => {
     console.log("dans changeStateAddingACard");
-    const state = {...this.state};
+    console.log("Numéro de colonne dans laquelle ajouter la carte : " + numCol);
+    this.numCol = numCol;
+    const state = { ...this.state };
     state.addingACard = true;
     this.setState(state);
-  }
+  };
   dumpColumn = () => {
     if (this.state.colonnes.length) {
       return (
         <div className="row">
-        {this.state.colonnes.map(col => {
-        return (
-          <Colonne
-            key={col.id}
-            id={col.id}
-            label={col.name}
-            cards={col.cartes}
-            onClickAddCard={this.changeStateAddingACard}
-            /* login={this.state.coopernet.user.uname}
-            pwd={this.state.coopernet.user.upwd}
-            onSuccess={this.successAddCard}
-            onFailed={this.failedAddCard} */
-          />
-        );
-      })}</div>);
+          {this.state.colonnes.map(col => {
+            return (
+              <Colonne
+                key={col.id}
+                id={col.id}
+                colonne={col}
+                label={col.name}
+                cards={col.cartes}
+                onClickAddCard={this.changeStateAddingACard}
+                onShowReponse={this.changeStateReponse}
+              />
+            );
+          })}
+        </div>
+      );
     }
+  };
+  changeStateReponse = (e, card, column) => {
+    console.log("dans changeStateReponse");
+    console.log("Theme : " + this.themeId);
+    console.log("card : " + card);
+    console.log("column : " + column.id);
+    // il faut maintenant changer le state de la carte en question en
+    // retrouvant l'index de la colonne en fct de l'id de la colonne
+    // puis l'index de la carte en fct de l'id de la carte
+    let state = { ...this.state };
+    let colonne_index = state.colonnes.indexOf(column);
+    console.log("Index de la colonne : " + colonne_index);
+    let carte_index = state.colonnes[colonne_index].cartes.indexOf(card);
+    console.log("Index de la carte : " + carte_index);
+    state.colonnes[colonne_index].cartes[carte_index].show_reponse = state
+      .colonnes[colonne_index].cartes[carte_index].show_reponse
+      ? false
+      : true;
+
+    this.setState(state);
   };
   render() {
     return (
