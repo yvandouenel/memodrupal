@@ -6,11 +6,12 @@ class Carte extends Component {
   render() {
     return (
       <div
-        className="bg-secondary text-light p-2 mb-2 rounded"
+        className="bg-secondary text-light p-2 mb-2 mt-4 rounded"
         id={this.props.card.id}
       >
         <h4
-          className=""
+          className="card-question"
+          title="Voir la réponse / modifier la carte"
           onClick={e => {
             this.props.onShowReponse(e, this.props.card, this.props.colonne);
           }}

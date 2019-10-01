@@ -2,6 +2,7 @@ import React, { Component } from "react";
 class Term extends Component {
   state = {};
   render() {
+    let classes = (this.props.selected) ? "btn btn-warning m-2" : "btn btn-secondary m-2";
     return (
       <button
         onClick={e => {
@@ -11,7 +12,7 @@ class Term extends Component {
             this.props.onFailed
           );
         }}
-        className="btn btn-secondary m-2"
+        className={classes}
         id={this.props.id}
       >
         {this.props.label}

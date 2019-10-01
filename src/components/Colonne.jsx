@@ -5,10 +5,11 @@ class Colonne extends Component {
   state = {};
   render() {
     return (
-      <div className="col-md-3">
+      <div className="col-md-3 mt-4">
         <h3>
           <button
             type="button"
+            title="Ajouter une carte"
             className="btn btn-success left"
             onClick={() => {
               this.props.onClickAddCard(this.props.id);

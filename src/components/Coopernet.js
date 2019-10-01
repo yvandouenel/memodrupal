@@ -256,8 +256,12 @@ class Coopernet extends Component {
     // On teste directement le status de notre instance de XMLHttpRequest
     if (req.status === 200) {
       // Tout baigne, voici le contenu du token
-      console.log("terms : ", req.responseText);
       let jsonResponse = JSON.parse(req.responseText);
+      // ajout de l'information sur le fait qu'un terme est sélectionné
+      jsonResponse.forEach(term => {
+        term.selected = false;
+      });
+      console.log("terms : ", jsonResponse);
       callbackSuccess(jsonResponse);
     } else {
       // On y est pas encore, voici le statut actuel

@@ -117,6 +117,14 @@ class Tableaux extends Component {
 
     // on sait maintenant quel term (thématique) est affiché
     this.themeId = termId;
+    // remise à zéro des term sélectionnés
+    state.terms.forEach(element => { element.selected = false;});
+    // récupération de l'index du terme concerné pour changer la propriété "selected"
+    let term_index = state.terms.findIndex(element => {
+      return element.id === termId;
+    });
+    state.terms[term_index].selected = true;
+
     this.setState(state);
   };
   failedCards = () => {
@@ -348,6 +356,7 @@ class Tableaux extends Component {
             onClick={this.state.coopernet.createReqCards}
             onSuccess={this.successCards}
             onFailed={this.failedCards}
+            selected={term.selected}
           />
         );
       });
