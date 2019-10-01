@@ -22,7 +22,7 @@ class Coopernet extends Component {
       headers: {
         "Content-Type": "application/hal+json",
         "X-CSRF-Token": this.token,
-        Authorization: "Basic " + btoa(login + ":" + pwd)
+        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
       },
       body: JSON.stringify({
         _links: {
@@ -50,6 +50,79 @@ class Coopernet extends Component {
       });
   };
 
+  createReqEditCard = (
+    num_card,
+    login,
+    pwd,
+    question,
+    reponse,
+    themeid,
+    columnid,
+    callbackSuccess,
+    callbackFailed
+  ) => {
+    console.log("Dans createReqEditCard de coopernet");
+    // création de la requête
+    // utilisation de fetch
+    fetch("http://local.d8-json.my/node/" + num_card + "?_format=hal_json", {
+      // permet d'accepter les cookies ?
+      credentials: "same-origin",
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/hal+json",
+        "X-CSRF-Token": this.token,
+        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
+      },
+      body: JSON.stringify({
+        _links: {
+          type: {
+            href: "http://local.d8-json.my/rest/type/node/carte"
+          }
+        },
+        title: [
+          {
+            value: question
+          }
+        ],
+        field_carte_question: [
+          {
+            value: question
+          }
+        ],
+        field_carte_reponse: [
+          {
+            value: reponse
+          }
+        ],
+        field_carte_colonne: [
+          {
+            target_id: columnid,
+            url: "/taxonomy/term/" + columnid
+          }
+        ],
+        field_carte_thematique: [
+          {
+            target_id: themeid,
+            url: "/taxonomy/term/" + themeid
+          }
+        ],
+        type: [
+          {
+            target_id: "carte"
+          }
+        ]
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("data reçues :", data);
+        if (data) {
+          callbackSuccess(themeid);
+        } else {
+          callbackFailed("Erreur de login ou de mot de passe");
+        }
+      });
+  };
   createReqAddCards = (
     login,
     pwd,
@@ -70,7 +143,7 @@ class Coopernet extends Component {
       headers: {
         "Content-Type": "application/hal+json",
         "X-CSRF-Token": this.token,
-        Authorization: "Basic " + btoa(login + ":" + pwd)
+        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
       },
       body: JSON.stringify({
         _links: {

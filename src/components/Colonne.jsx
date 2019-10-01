@@ -25,10 +25,10 @@ class Colonne extends Component {
               question={card.question}
               reponse={card.reponse}
               card={card}
-              colonneId={this.props.id}
               colonne={this.props.colonne}
               onShowReponse={this.props.onShowReponse}
               onRemove={this.props.onRemove}
+              onClickEditCard={this.props.onClickEditCard}
               show_reponse={card.show_reponse}
               user={this.props.user}
               successRemoveCard={this.props.successRemoveCard}

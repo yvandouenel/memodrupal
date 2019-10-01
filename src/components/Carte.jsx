@@ -27,11 +27,10 @@ class Carte extends Component {
               <Button
                 variant="primary"
                 onClick={e => {
-                  this.props.onHandleShowForm(
+                  this.props.onClickEditCard(
                     e,
-                    this.props.carte,
+                    this.props.card,
                     this.props.colonne,
-                    this.props.tableau
                   );
                 }}
               >

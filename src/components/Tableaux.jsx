@@ -12,6 +12,7 @@ class Tableaux extends Component {
       coopernet: new Coopernet(),
       userIsLogged: false,
       addingACard: false,
+      editingACard: false,
       msgError: "",
       terms: [],
       colonnes: []
@@ -19,6 +20,8 @@ class Tableaux extends Component {
     this.dumpModal = true;
     this.themeId = 0;
     this.columnId = 0;
+    this.editedCard = null;
+    this.editedColumn = null;
   }
   // Permet d'appeler la méthode une fois que me composant est "monté"
   componentDidMount() {
@@ -58,6 +61,18 @@ class Tableaux extends Component {
     this.setState(state);
     // création de la requête pour obtenir les thématiques
     this.state.coopernet.createReqTerms(this.successTerms, this.failedTerms);
+  };
+  successEditCard = themeid => {
+    console.log("Dans successEditCard");
+    // Rappel de la fonction qui va chercher la liste des cartes pour une thématique
+    this.state.coopernet.createReqCards(
+      themeid,
+      this.successCards,
+      this.failedCards
+    );
+  };
+  failedEditCard = () => {
+    console.log("Dans failedEditCard");
   };
   successAddCard = themeid => {
     console.log("Dans successAddCard");
@@ -114,37 +129,79 @@ class Tableaux extends Component {
     if (msg) state.msgError = msg;
     this.setState(state);
   };
-  handleSubmitAddCard = event => {
-    console.log("dans handleSubmitAddCard");
+  handleSubmitAddOrEditCard = (event, editedCard = false) => {
+    console.log("dans handleSubmitAddOrEditCard - edit = ", editedCard);
+
     event.preventDefault();
     // récupération des éléments du formulaire
     const inputQuestion = document.getElementById("inputquestion").value;
     const inputReponse = document.getElementById("inputreponse").value;
 
-    this.state.coopernet.createReqAddCards(
-      this.state.coopernet.user.uname,
-      this.state.coopernet.user.upwd,
-      inputQuestion,
-      inputReponse,
-      this.themeId,
-      this.numCol,
-      this.successAddCard,
-      this.failedAddCard
-    );
+    if (!editedCard) {
+      this.state.coopernet.createReqAddCards(
+        this.state.coopernet.user.uname,
+        this.state.coopernet.user.upwd,
+        inputQuestion,
+        inputReponse,
+        this.themeId,
+        this.numCol,
+        this.successAddCard,
+        this.failedAddCard
+      );
+    } else {
+      // appel de la fonction de modification
+      console.log(
+        "dans handleSubmitAddOrEditCard : appel de createReqEditCard"
+      );
+      // arguments num_card,login,pwd,question,reponse,themeid,columnid,callbackSuccess,callbackFailed
+      console.log("num_card = ", editedCard.id);
+      console.log("login = ", this.state.coopernet.user.uname);
+      console.log("pwd = ", this.state.coopernet.user.upwd);
+      console.log("question = ", editedCard.question);
+      console.log("reponse = ", editedCard.reponse);
+      console.log("themeid = ", this.themeId);
+      console.log("columnid = ", editedCard.colonne);
+      this.state.coopernet.createReqEditCard(
+        editedCard.id,
+        this.state.coopernet.user.uname,
+        this.state.coopernet.user.upwd,
+        editedCard.question,
+        editedCard.reponse,
+        this.themeId,
+        editedCard.colonne,
+        this.successEditCard,
+        this.failedEditCard
+      );
+    }
+
     const state = { ...this.state };
     state.addingACard = false;
+    state.editingACard = false;
+    this.editedCard = null;
+    this.editedColumn = null;
     this.setState(state);
   };
   handleCloseForm = event => {
     console.log("dans handleCloseForm");
     const state = { ...this.state };
     state.addingACard = false;
+    state.editingACard = false;
+    this.editedCard = null;
+    this.editedColumn = null;
     this.setState(state);
   };
-  dumpFormAddCard = () => {
-    console.log("Dans dumpFormAddCard");
-    if (this.state.addingACard) {
-      console.log("addingACard = yes", "theme = " + this.themeId);
+  dumpFormAddOrEditCard = () => {
+    console.log("Dans dumpFormAddOrEditCard");
+    console.log(this.state.editingACard);
+    if (this.state.addingACard || this.state.editingACard) {
+      let edit = this.state.editingACard ? this.editedCard : false;
+      console.log(
+        "addingACard = ",
+        this.state.addingACard,
+        "editingACard = ",
+        this.state.editingACard,
+        "theme = " + this.themeId
+      );
       return (
         <Modal show={this.dumpModal} size="lg" className="modal-large">
           <Modal.Header>
@@ -155,28 +212,50 @@ class Tableaux extends Component {
               /* formulaire ici */
               <form
                 onSubmit={e => {
-                  this.handleSubmitAddCard(e);
+                  this.handleSubmitAddOrEditCard(e, edit);
                 }}
               >
                 <label className="label-large">
                   question:
-                  <input
-                    type="text"
-                    id="inputquestion"
-                    autoFocus
-                    className="ml-4 input-large"
-                    value={this.props.question}
-                  />
+                  {this.state.addingACard && (
+                    <input
+                      type="text"
+                      id="inputquestion"
+                      autoFocus
+                      className="ml-4 input-large"
+                    />
+                  )}
+                  {this.state.editingACard && (
+                    <input
+                      onChange={e => this.handleChangeCard(e, this.editedCard)}
+                      type="text"
+                      id="inputquestion"
+                      autoFocus
+                      className="ml-4 input-large"
+                      value={this.editedCard.question}
+                    />
+                  )}
                 </label>
                 <label className="label-large">
                   Réponse:
-                  <textarea
-                    type="text"
-                    autoFocus
-                    className="ml-4 textarea-large"
-                    id="inputreponse"
-                    value={this.props.reponse}
-                  />
+                  {this.state.addingACard && (
+                    <textarea
+                      type="text"
+                      autoFocus
+                      className="ml-4 textarea-large"
+                      id="inputreponse"
+                    />
+                  )}
+                  {this.state.editingACard && (
+                    <textarea
+                      onChange={e => this.handleChangeCard(e, this.editedCard)}
+                      type="text"
+                      autoFocus
+                      className="ml-4 textarea-large"
+                      id="inputreponse"
+                      value={this.editedCard.reponse}
+                    />
+                  )}
                 </label>
                 <button type="submit" className="btn btn-default btn-submit">
                   Envoyer
@@ -192,6 +271,25 @@ class Tableaux extends Component {
         </Modal>
       );
     } else return "";
+  };
+  handleChangeCard = (event, card) => {
+    console.log("Dans handleChangeCard");
+    event.preventDefault();
+
+    let state = { ...this.state };
+
+    // Récupération des champs modifiés via le formulaire
+    let question = document.getElementById("inputquestion").value;
+    let reponse = document.getElementById("inputreponse").value;
+
+    // récupération de l'index des colonnes
+    let index_columns = state.colonnes.indexOf(this.editedColumn);
+    // récupération de l'index des cartes
+    let index_cards = state.colonnes[index_columns].cartes.indexOf(card);
+
+    state.colonnes[index_columns].cartes[index_cards].question = question;
+    state.colonnes[index_columns].cartes[index_cards].reponse = reponse;
+    this.setState(state);
   };
   handleSubmit = event => {
     console.log("Le formulaire a été soumis : ");
@@ -255,6 +353,14 @@ class Tableaux extends Component {
       });
     }
   };
+  changeStateEditingACard = (e, card, column) => {
+    console.log("dans' changeStateEditingACard : ", card, column);
+    const state = { ...this.state };
+    state.editingACard = true;
+    this.editedCard = card;
+    this.editedColumn = column;
+    this.setState(state);
+  };
   changeStateAddingACard = numCol => {
     console.log("dans' changeStateAddingACard");
     console.log("Numéro de colonne dans laquelle ajouter la carte : " + numCol);
@@ -276,6 +382,7 @@ class Tableaux extends Component {
                 label={col.name}
                 cards={col.cartes}
                 onClickAddCard={this.changeStateAddingACard}
+                onClickEditCard={this.changeStateEditingACard}
                 onShowReponse={this.changeStateReponse}
                 onRemove={this.state.coopernet.removeCard}
                 user={this.state.coopernet.user}
@@ -324,7 +431,7 @@ class Tableaux extends Component {
         {this.state.msgError && (
           <div className="alert alert-warning">{this.state.msgError}</div>
         )}
-        {this.dumpFormAddCard()}
+        {this.dumpFormAddOrEditCard()}
         {this.dumpTerms()}
         {this.dumpColumn()}
       </div>
