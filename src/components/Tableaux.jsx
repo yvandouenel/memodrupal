@@ -384,8 +384,8 @@ class Tableaux extends Component {
     if (!this.state.userIsLogged) {
       return (
         <form id="login-form" onSubmit={this.handleSubmit}>
-          <label className="mr-4">
-            login :
+          <label className="mr-4 label-login-form">
+            <div>login :</div>
             <input
               id="edit-name"
               name="name"
@@ -393,8 +393,8 @@ class Tableaux extends Component {
               className="validate ml-2"
             />
           </label>
-          <label className="mr-4">
-            mot de passe :
+          <label className="mr-4 label-login-form">
+          <div>mot de passe :</div>
             <input
               id="edit-pass"
               name="pass"
@@ -450,7 +450,7 @@ class Tableaux extends Component {
   dumpColumn = () => {
     if (this.state.colonnes.length) {
       return (
-        <section className="row" className="section-cards">
+        <section className="row section-cards">
           {this.state.colonnes.map(col => {
             return (
               <Colonne

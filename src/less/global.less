@@ -67,6 +67,22 @@
   margin-top: 1rem;
   display: flex;
   justify-content: center;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    margin-top: 40px;
+    .label-login-form {
+      display: flex;
+      > * {
+        flex-basis: 0;
+        flex-shrink: 1;
+        flex-grow: 1;
+        margin: 3px 0 !important;
+      }
+      > input {
+        border: 1px solid black;
+      }
+    }
+  }
 }
 /* Formulaire de modification / ajout */
 #add-or-edit-card {

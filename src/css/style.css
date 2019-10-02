@@ -67,6 +67,24 @@
   display: flex;
   justify-content: center;
 }
+@media screen and (max-width: 768px) {
+  #login-form {
+    flex-direction: column;
+    margin-top: 40px;
+  }
+  #login-form .label-login-form {
+    display: flex;
+  }
+  #login-form .label-login-form > * {
+    flex-basis: 0;
+    flex-shrink: 1;
+    flex-grow: 1;
+    margin: 3px 0 !important;
+  }
+  #login-form .label-login-form > input {
+    border: 1px solid black;
+  }
+}
 /* Formulaire de modification / ajout */
 #add-or-edit-card {
   display: flex;
@@ -99,6 +117,7 @@
 .section-cards {
   display: flex;
   justify-content: space-between;
+  flex-wrap: nowrap !important;
 }
 .section-cards > .section-card {
   flex-basis: 0px;
