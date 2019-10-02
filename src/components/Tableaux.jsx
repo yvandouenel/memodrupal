@@ -15,7 +15,7 @@ class Tableaux extends Component {
       editingACard: false,
       msgError: "",
       terms: [],
-      colonnes: []
+      colonnes: [] //ici sont stockées les colonnes et les cartes
     };
     this.dumpModal = true;
     this.themeId = 0;
@@ -44,6 +44,50 @@ class Tableaux extends Component {
     this.state.coopernet.isLogged(this.successLog, this.failedLog);
   };
   /**
+   * Récupère l'index de la colonne actuelle puis l'index de la colonne
+   * précédente ou suivante puis récupère l'index du term de tanonomie
+   * pour le donner en paramètre à la fonction qui est chargée de modifier
+   * la carte
+   */
+  moveCard = (card, column, direction) => {
+    console.log("Dans moveCard");
+    //console.log(card,column,direction);
+
+    // récupération de l'index de la colonne
+    const current_column_index = this.state.colonnes.indexOf(column);
+    console.log("index de la colonne : ", current_column_index);
+    let new_index_drupal_column = 0;
+
+    switch (direction) {
+      case "right":
+        // récupération de l'index suivant
+        const next_column_index = (current_column_index + 1) % 4;
+        console.log("index suivant : ", next_column_index);
+        new_index_drupal_column = this.state.colonnes[next_column_index].id;
+        break;
+      case "left":
+        // récupération de l'index précédent
+        let previous_column_index = (current_column_index - 1) % 4;
+        previous_column_index =
+          previous_column_index === -1 ? 3 : previous_column_index;
+        console.log("index précédent : ", previous_column_index);
+        new_index_drupal_column = this.state.colonnes[previous_column_index].id;
+        break;
+      default:
+        console.log("Pb dans moveCard " + direction + ".");
+    }
+    console.log("nouvel index de la carte : ", new_index_drupal_column);
+    this.state.coopernet.createReqEditColumnCard (
+      card.id,
+      this.state.coopernet.user.uname,
+      this.state.coopernet.user.upwd,
+      new_index_drupal_column,
+      this.themeId,
+      this.successEditColumnCard,
+      this.failedEditColumnCard
+    )
+  };
+  /**
    * Sert aussi bien dans le cas où l'utilisateur est déjà logé
    * ou dans le cas où il vient de se loger via le formulaire
    */
@@ -62,6 +106,18 @@ class Tableaux extends Component {
     // création de la requête pour obtenir les thématiques
     this.state.coopernet.createReqTerms(this.successTerms, this.failedTerms);
   };
+  successEditColumnCard = themeid => {
+    console.log("Dans successEditColumnCard");
+    // Rappel de la fonction qui va chercher la liste des cartes pour une thématique
+    this.state.coopernet.createReqCards(
+      themeid,
+      this.successCards,
+      this.failedCards
+    );
+  };
+  failedEditColumnCard = () => {
+    console.log("Dans failedEditColumnCard");
+  };
   successEditCard = themeid => {
     console.log("Dans successEditCard");
     // Rappel de la fonction qui va chercher la liste des cartes pour une thématique
@@ -71,6 +127,7 @@ class Tableaux extends Component {
       this.failedCards
     );
   };
+
   failedEditCard = () => {
     console.log("Dans failedEditCard");
   };
@@ -118,7 +175,9 @@ class Tableaux extends Component {
     // on sait maintenant quel term (thématique) est affiché
     this.themeId = termId;
     // remise à zéro des term sélectionnés
-    state.terms.forEach(element => { element.selected = false;});
+    state.terms.forEach(element => {
+      element.selected = false;
+    });
     // récupération de l'index du terme concerné pour changer la propriété "selected"
     let term_index = state.terms.findIndex(element => {
       return element.id === termId;
@@ -392,6 +451,7 @@ class Tableaux extends Component {
                 cards={col.cartes}
                 onClickAddCard={this.changeStateAddingACard}
                 onClickEditCard={this.changeStateEditingACard}
+                onMoveCard={this.moveCard}
                 onShowReponse={this.changeStateReponse}
                 onRemove={this.state.coopernet.removeCard}
                 user={this.state.coopernet.user}

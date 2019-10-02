@@ -50,6 +50,64 @@ class Coopernet extends Component {
       });
   };
 
+  createReqEditColumnCard = (
+    num_card,
+    login,
+    pwd,
+    new_col_id,
+    themeid,
+    callbackSuccess,
+    callbackFailed
+  ) => {
+    console.log("Dans createReqEditColumnCard de coopernet");
+    // création de la requête
+    console.log("num_card : ", num_card);
+    console.log("login : ", login);
+    console.log("pwd : ", pwd);
+    console.log("new_col_id : ", new_col_id);
+    console.log("themeid : ", themeid);
+    console.log("callbackSuccess : ", callbackSuccess);
+    console.log("callbackFailed : ", callbackFailed);
+    // utilisation de fetch
+    fetch("http://local.d8-json.my/node/" + num_card + "?_format=hal_json", {
+      // permet d'accepter les cookies ?
+      credentials: "same-origin",
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/hal+json",
+        "X-CSRF-Token": this.token,
+        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
+      },
+      body: JSON.stringify({
+        _links: {
+          type: {
+            href: "http://local.d8-json.my/rest/type/node/carte"
+          }
+        },
+        field_carte_colonne: [
+          {
+            target_id: new_col_id,
+            url: "/taxonomy/term/" + new_col_id
+          }
+        ],
+
+        type: [
+          {
+            target_id: "carte"
+          }
+        ]
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("data reçues :", data);
+        if (data) {
+          callbackSuccess(themeid);
+        } else {
+          callbackFailed("Erreur de login ou de mot de passe");
+        }
+      });
+  };
   createReqEditCard = (
     num_card,
     login,

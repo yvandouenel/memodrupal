@@ -1,16 +1,39 @@
 import React, { Component } from "react";
 import Button from "react-bootstrap/Button";
+import { IoIosArrowDropright, IoIosArrowDropleft } from "react-icons/io";
 
 class Carte extends Component {
   state = {};
   render() {
     return (
       <div
-        className="bg-secondary text-light p-2 mb-2 mt-4 rounded"
+        className="bg-secondary text-light p-2 mb-2 mt-4 rounded carte"
         id={this.props.card.id}
       >
+        <div className="float-right cursor-pointer arrow" title="Déplacer la carte">
+          <IoIosArrowDropright
+            onClick={() =>
+              this.props.onMoveCard(
+                this.props.card,
+                this.props.colonne,
+                "right"
+              )
+            }
+          />
+        </div>
+        <div className="float-left cursor-pointer arrow" title="Déplacer la carte">
+          <IoIosArrowDropleft
+            onClick={() =>
+              this.props.onMoveCard(
+                this.props.card,
+                this.props.colonne,
+                "left"
+              )
+            }
+          />
+        </div>
         <h4
-          className="card-question"
+          className="card-question pl-50"
           title="Voir la réponse / modifier la carte"
           onClick={e => {
             this.props.onShowReponse(e, this.props.card, this.props.colonne);
@@ -31,7 +54,7 @@ class Carte extends Component {
                   this.props.onClickEditCard(
                     e,
                     this.props.card,
-                    this.props.colonne,
+                    this.props.colonne
                   );
                 }}
               >

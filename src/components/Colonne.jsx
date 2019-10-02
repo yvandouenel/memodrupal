@@ -29,6 +29,7 @@ class Colonne extends Component {
               colonne={this.props.colonne}
               onShowReponse={this.props.onShowReponse}
               onRemove={this.props.onRemove}
+              onMoveCard={this.props.onMoveCard}
               onClickEditCard={this.props.onClickEditCard}
               show_reponse={card.show_reponse}
               user={this.props.user}

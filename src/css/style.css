@@ -18,6 +18,23 @@
   float: left !important;
   margin-right: 20px;
 }
-.card-question:hover {
+/* icons **************************************/
+.arrow {
+  font-size: 2em;
+}
+.arrow:hover {
+  cursor: pointer;
+}
+.arrow svg {
+  vertical-align: top !important;
+}
+/* propriétés de boîte ************************/
+.pl-50 {
+  padding-left: 50px;
+}
+.carte {
+  min-height: 40px;
+}
+.carte .card-question:hover {
   cursor: pointer;
 }
