@@ -10,6 +10,14 @@
   }
 }
 /* general */
+/* :root {
+  font-size: 62.5%;
+  body {
+    margin: 0;
+    // Body font size 16px
+    font-size: 1.6rem;
+  }
+} */
 .right {
   float: right !important;
   margin-left: 20px;
@@ -31,4 +39,55 @@
 /* propriétés de boîte ************************/
 .pl-50 {
   padding-left: 50px;
+}
+/* Header *************************************/
+#main-header {
+  display: flex;
+  justify-content: center;
+  h1 {
+    max-width: 50%;
+    #m-memo {
+      position: relative;
+      top: 6px;
+    }
+  }
+  h2 {
+    font-size: 0.875rem;
+  }
+  #icon-user {
+    margin-left: 50px;
+    color: white;
+    font-size: 2em;
+    margin-top: 10px;
+  }
+
+}
+/* formulaire de connexion ********************/
+#login-form {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+/* Formulaire de modification / ajout */
+#add-or-edit-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  .div-label-form label {
+    display: flex;
+    flex-direction: row;
+  }
+  input,
+  textarea {
+    width: 80%;
+  }
+  .button-normal-size {
+    max-width: 50%;
+    margin: 0 auto;
+  }
+}
+/* Termes des thématiques *********************/
+#section-terms {
+  display: flex;
+  justify-content: center;
 }

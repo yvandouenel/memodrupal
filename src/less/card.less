@@ -6,3 +6,23 @@
     }
   }
 }
+.section-cards {
+  display: flex;
+  justify-content: space-between;
+  > .section-card {
+    flex-basis: 0px;
+    flex-grow: 1;
+    margin: 0 10px;
+    flex-shrink: 1;
+    @media screen and (max-width: 768px) {
+      width: 100vw;
+      min-width: 93vw;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    width: 95vw;
+    min-width: 95vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}

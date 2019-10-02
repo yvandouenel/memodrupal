@@ -4,6 +4,8 @@ import Term from "./Term";
 import Colonne from "./Colonne";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import { GiBrainTentacle } from "react-icons/gi";
+import { FaUserCheck, FaUserTimes } from "react-icons/fa";
 
 class Tableaux extends Component {
   constructor(props) {
@@ -77,7 +79,7 @@ class Tableaux extends Component {
         console.log("Pb dans moveCard " + direction + ".");
     }
     console.log("nouvel index de la carte : ", new_index_drupal_column);
-    this.state.coopernet.createReqEditColumnCard (
+    this.state.coopernet.createReqEditColumnCard(
       card.id,
       this.state.coopernet.user.uname,
       this.state.coopernet.user.upwd,
@@ -85,7 +87,7 @@ class Tableaux extends Component {
       this.themeId,
       this.successEditColumnCard,
       this.failedEditColumnCard
-    )
+    );
   };
   /**
    * Sert aussi bien dans le cas où l'utilisateur est déjà logé
@@ -277,13 +279,14 @@ class Tableaux extends Component {
           <Modal.Body>
             {
               /* formulaire ici */
-              <form
+              <form id="add-or-edit-card"
                 onSubmit={e => {
                   this.handleSubmitAddOrEditCard(e, edit);
                 }}
               >
+              <div id="div-question" className="div-label-form">
                 <label className="label-large">
-                  question:
+                  <div>Question :</div>
                   {this.state.addingACard && (
                     <input
                       type="text"
@@ -303,8 +306,10 @@ class Tableaux extends Component {
                     />
                   )}
                 </label>
+                </div>
+                <div id="div-reponse" className="div-label-form">
                 <label className="label-large">
-                  Réponse:
+                <div>Réponse :</div>
                   {this.state.addingACard && (
                     <textarea
                       type="text"
@@ -324,7 +329,8 @@ class Tableaux extends Component {
                     />
                   )}
                 </label>
-                <button type="submit" className="btn btn-default btn-submit">
+                </div>
+                <button type="submit" className="btn btn-default btn-danger button-normal-size" >
                   Envoyer
                 </button>
               </form>
@@ -377,7 +383,7 @@ class Tableaux extends Component {
     console.log("Dans formLogin");
     if (!this.state.userIsLogged) {
       return (
-        <form id="add_card" onSubmit={this.handleSubmit}>
+        <form id="login-form" onSubmit={this.handleSubmit}>
           <label className="mr-4">
             login :
             <input
@@ -396,7 +402,7 @@ class Tableaux extends Component {
               className="validate ml-2"
             />
           </label>
-          <button type="submit" className="btn btn-default btn-submit">
+          <button type="submit" className="btn btn-default btn-info">
             Sign in
           </button>
         </form>
@@ -406,19 +412,23 @@ class Tableaux extends Component {
 
   dumpTerms = () => {
     if (this.state.terms.length) {
-      return this.state.terms.map(term => {
-        return (
-          <Term
-            key={term.id}
-            id={term.id}
-            label={term.name}
-            onClick={this.state.coopernet.createReqCards}
-            onSuccess={this.successCards}
-            onFailed={this.failedCards}
-            selected={term.selected}
-          />
-        );
-      });
+      return (
+        <section id="section-terms">
+          {this.state.terms.map(term => {
+            return (
+                <Term
+                  key={term.id}
+                  id={term.id}
+                  label={term.name}
+                  onClick={this.state.coopernet.createReqCards}
+                  onSuccess={this.successCards}
+                  onFailed={this.failedCards}
+                  selected={term.selected}
+                />
+            );
+          })}
+        </section>
+      );
     }
   };
   changeStateEditingACard = (e, card, column) => {
@@ -440,7 +450,7 @@ class Tableaux extends Component {
   dumpColumn = () => {
     if (this.state.colonnes.length) {
       return (
-        <div className="row">
+        <section className="row" className="section-cards">
           {this.state.colonnes.map(col => {
             return (
               <Colonne
@@ -460,9 +470,40 @@ class Tableaux extends Component {
               />
             );
           })}
-        </div>
+        </section>
       );
     }
+  };
+  dumpHeader = () => {
+    let title_user = "";
+    if (this.state.userIsLogged) {
+      title_user =
+        "Utilisateur " +
+        this.state.coopernet.user.uname +
+        " connecté sur " +
+        this.state.coopernet.url_serveur;
+    }
+    return (
+      <header className="bg-secondary" id="main-header">
+        <h1 id="title-memo" className="text-light">
+          <GiBrainTentacle className="icon-logo" />e<span id="m-memo">M</span>o
+        </h1>
+        {this.state.userIsLogged && (
+          <FaUserCheck
+            id="icon-user"
+            title={title_user}
+            className="text-success"
+          />
+        )}
+        {!this.state.userIsLogged && (
+          <FaUserTimes
+            id="icon-user"
+            title="Utilisateur non connecté"
+            className="text-light"
+          />
+        )}
+      </header>
+    );
   };
   changeStateReponse = (e, card, column) => {
     console.log("dans changeStateReponse");
@@ -486,23 +527,18 @@ class Tableaux extends Component {
   };
   render() {
     return (
-      <div className="container">
-        <h1>Memo</h1>
-        {this.state.userIsLogged && (
-          <div className="buttons-tableaux">
-            <h3>
-              Utilisateur {this.state.coopernet.user.uname} connecté sur{" "}
-              {this.state.coopernet.url_serveur}
-            </h3>
-          </div>
-        )}
-        {this.dumpFormLogin()}
-        {this.state.msgError && (
-          <div className="alert alert-warning">{this.state.msgError}</div>
-        )}
-        {this.dumpFormAddOrEditCard()}
-        {this.dumpTerms()}
-        {this.dumpColumn()}
+      <div>
+        {this.dumpHeader()}
+
+        <div className="container">
+          {this.dumpFormLogin()}
+          {this.state.msgError && (
+            <div className="alert alert-warning">{this.state.msgError}</div>
+          )}
+          {this.dumpFormAddOrEditCard()}
+          {this.dumpTerms()}
+          {this.dumpColumn()}
+        </div>
       </div>
     );
   }

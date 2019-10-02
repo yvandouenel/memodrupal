@@ -5,7 +5,7 @@ class Colonne extends Component {
   state = {};
   render() {
     return (
-      <div className="col-md-3 mt-4">
+      <section className="section-card mt-4">
         <h3>
           <button
             type="button"
@@ -38,7 +38,7 @@ class Colonne extends Component {
             />
           );
         })}
-      </div>
+      </section>
     );
   }
 }
