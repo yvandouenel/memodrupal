@@ -4,7 +4,9 @@ class Coopernet extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-    this.url_serveur = "http://local.d8-json.my/";
+    //this.url_serveur = "http://local.d8-json.my/";
+    this.url_serveur = "http://www.coopernet.fr/";
+    //this.url_serveur = "http://local.coopernet.my/";
     this.token = "";
     this.user = {
       uid: 0,
@@ -12,22 +14,22 @@ class Coopernet extends Component {
       upwd: ""
     };
   }
-  removeCard = (num_card,login, pwd, callbackSuccess, callbackFailed) => {
+  removeCard = (num_card, login, pwd, callbackSuccess, callbackFailed) => {
     console.log("dans removeCard - carte " + num_card);
     // utilisation de fetch
-    fetch("http://local.d8-json.my/node/" + num_card + "?_format=hal_json", {
+    fetch(this.url_serveur + "node/" + num_card + "?_format=hal_json", {
       // permet d'accepter les cookies ?
       credentials: "same-origin",
       method: "DELETE",
       headers: {
         "Content-Type": "application/hal+json",
         "X-CSRF-Token": this.token,
-        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
+        Authorization: "Basic " + btoa(login + ":" + pwd) // btoa = encodage en base 64
       },
       body: JSON.stringify({
         _links: {
           type: {
-            href: "http://local.d8-json.my/rest/type/node/carte"
+            href: this.url_serveur + "rest/type/node/carte"
           }
         },
 
@@ -41,12 +43,11 @@ class Coopernet extends Component {
       .then(response => response)
       .then(data => {
         console.log("data reçues:", data);
-        if(data.status === 204) {
+        if (data.status === 204) {
           callbackSuccess();
         } else {
           callbackFailed();
         }
-
       });
   };
 
@@ -60,28 +61,23 @@ class Coopernet extends Component {
     callbackFailed
   ) => {
     console.log("Dans createReqEditColumnCard de coopernet");
+    console.log("token : ", this.token);
     // création de la requête
-    console.log("num_card : ", num_card);
-    console.log("login : ", login);
-    console.log("pwd : ", pwd);
-    console.log("new_col_id : ", new_col_id);
-    console.log("themeid : ", themeid);
-    console.log("callbackSuccess : ", callbackSuccess);
-    console.log("callbackFailed : ", callbackFailed);
     // utilisation de fetch
-    fetch("http://local.d8-json.my/node/" + num_card + "?_format=hal_json", {
+
+    fetch(this.url_serveur + "node/" + num_card + "?_format=hal_json", {
       // permet d'accepter les cookies ?
       credentials: "same-origin",
       method: "PATCH",
       headers: {
         "Content-Type": "application/hal+json",
         "X-CSRF-Token": this.token,
-        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
+        "Authorization": "Basic " + btoa(login + ":" + pwd) // btoa = encodage en base 64
       },
       body: JSON.stringify({
         _links: {
           type: {
-            href: "http://local.d8-json.my/rest/type/node/carte"
+            href: this.url_serveur + "rest/type/node/carte"
           }
         },
         field_carte_colonne: [
@@ -122,19 +118,19 @@ class Coopernet extends Component {
     console.log("Dans createReqEditCard de coopernet");
     // création de la requête
     // utilisation de fetch
-    fetch("http://local.d8-json.my/node/" + num_card + "?_format=hal_json", {
+    fetch(this.url_serveur + "node/" + num_card + "?_format=hal_json", {
       // permet d'accepter les cookies ?
       credentials: "same-origin",
       method: "PATCH",
       headers: {
         "Content-Type": "application/hal+json",
         "X-CSRF-Token": this.token,
-        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
+        Authorization: "Basic " + btoa(login + ":" + pwd) // btoa = encodage en base 64
       },
       body: JSON.stringify({
         _links: {
           type: {
-            href: "http://local.d8-json.my/rest/type/node/carte"
+            href: this.url_serveur + "rest/type/node/carte"
           }
         },
         title: [
@@ -194,19 +190,19 @@ class Coopernet extends Component {
     console.log("Dans createReqAddCards de coopernet");
     // création de la requête
     // utilisation de fetch
-    fetch("http://local.d8-json.my/entity/node?_format=hal_json", {
+    fetch(this.url_serveur + "node?_format=hal_json", {
       // permet d'accepter les cookies ?
       credentials: "same-origin",
       method: "POST",
       headers: {
         "Content-Type": "application/hal+json",
         "X-CSRF-Token": this.token,
-        Authorization: "Basic " + btoa(login + ":" + pwd)// btoa = encodage en base 64
+        Authorization: "Basic " + btoa(login + ":" + pwd) // btoa = encodage en base 64
       },
       body: JSON.stringify({
         _links: {
           type: {
-            href: "http://local.d8-json.my/rest/type/node/carte"
+            href: this.url_serveur + "rest/type/node/carte"
           }
         },
         title: [
@@ -257,6 +253,7 @@ class Coopernet extends Component {
   createReqCards = (termNumber, callbackSuccess, callbackFailed) => {
     // création de la requête
     console.log("Dans createReqCards de coopernet");
+    console.log("token : ", this.token);
     const req_cards = new XMLHttpRequest();
     req_cards.onload = () => {
       // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
@@ -272,9 +269,13 @@ class Coopernet extends Component {
         this.user.uid +
         "/" +
         termNumber +
-        "&time=" +
+        "&_format=json&time=" +
         Math.floor(Math.random() * 10000),
       true
+    );
+    req_cards.setRequestHeader(
+      "Authorization",
+      "Basic " + btoa(this.user.uname + ":" + this.user.upwd)
     );
     req_cards.send(null);
   };
@@ -285,7 +286,7 @@ class Coopernet extends Component {
       // Tout baigne, voici le contenu du token
       let jsonResponse = JSON.parse(req.responseText);
       // ajout de la propriété show_reponse à chaque carte
-      console.log("Ajout prop carte");
+      console.log("Ajout prop show_reponse to all cards", jsonResponse);
       jsonResponse.forEach(function(element) {
         element.cartes.forEach(function(ele) {
           ele.show_reponse = false;
@@ -305,8 +306,12 @@ class Coopernet extends Component {
       // passage de la requête en paramètre, sinon, c'est this (coopernet qui serait utilisé)
       this.getTerms(req_terms, callbackSuccess, callbackFailed);
     };
-    // Fait appel au "end-point créé dans le module drupal memo"
+    // Fait appel au "end-point créé dans le module drupal memo" ...
     req_terms.open("GET", this.url_serveur + "memo/themes/", true);
+    req_terms.setRequestHeader(
+      "Authorization",
+      "Basic " + btoa(this.user.uname + ":" + this.user.upwd)
+    );
     req_terms.send(null);
   };
   getTerms = (req, callbackSuccess, callbackFailed) => {
@@ -345,6 +350,27 @@ class Coopernet extends Component {
     req_token.open("GET", this.url_serveur + "rest/session/token/", true);
     req_token.send(null);
   };
+  createReqLogout = () => {
+    console.log("Dans createReqLogout de coopernet");
+    fetch(this.url_serveur + "user/logout?_format=hal_json", {
+      // permet d'accepter les cookies ?
+      credentials: "same-origin",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/hal+json",
+        "X-CSRF-Token": this.token
+      }
+    })
+      .then(response => response)
+      .then(data => {
+        console.log("data reçues :", data);
+        if (data) {
+          //callbackSuccess(themeid);
+        } else {
+          //callbackFailed("Erreur de login ou de mot de passe");
+        }
+      });
+  };
   getToken = (req, sucess, login, pwd, callbackSuccess, callbackFailed) => {
     console.log("Dans getToken de coopernet");
     // On teste directement le status de notre instance de XMLHttpRequest
@@ -364,7 +390,7 @@ class Coopernet extends Component {
     console.log("dans tokenSuccess de coopernet");
     console.log(login, pwd, this.token);
     // utilisation de fetch
-    fetch("http://local.d8-json.my/user/login?_format=json", {
+    fetch(this.url_serveur + "user/login?_format=json", {
       credentials: "same-origin",
       method: "POST",
       headers: {
@@ -437,7 +463,7 @@ class Coopernet extends Component {
   };
   getIsLogged = (req, callbackSuccess, callbackFailed) => {
     // On teste directement le status de notre instance de XMLHttpRequest
-    console.log("dans getIsLogged de coopernet");
+    console.log("dans getIsLogged de Coopernet");
     if (req.status === 200) {
       // Tout baigne, voici le contenu de la réponse
       console.log("Appel à /memo/is_logged ok");
@@ -453,9 +479,13 @@ class Coopernet extends Component {
         callbackSuccess();
       }
       //login(this.responseText);
+    } else if (req.status === 403) {
+      console.log("Statut 403", req.status, req.statusText);
+      this.createReqLogout();
     } else {
       // On y est pas encore, voici le statut actuel
-      console.log("Statut actuel", req.status, req.statusText);
+      console.log("Statut d'erreur : ", req.status, req.statusText);
+      callbackFailed();
     }
   };
 
