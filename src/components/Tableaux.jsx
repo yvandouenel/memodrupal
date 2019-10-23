@@ -100,7 +100,6 @@ class Tableaux extends Component {
       "user : ",
       this.state.coopernet.user.uid,
       this.state.coopernet.user.uname,
-      this.state.coopernet.user.upwd
     );
     state.userIsLogged = true;
     state.msgError = "";
@@ -225,7 +224,6 @@ class Tableaux extends Component {
       // arguments num_card,login,pwd,question,reponse,themeid,columnid,callbackSuccess,callbackFailed
       console.log("num_card = ", editedCard.id);
       console.log("login = ", this.state.coopernet.user.uname);
-      console.log("pwd = ", this.state.coopernet.user.upwd);
       console.log("question = ", editedCard.question);
       console.log("reponse = ", editedCard.reponse);
       console.log("themeid = ", this.themeId);
