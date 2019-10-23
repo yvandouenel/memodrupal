@@ -367,7 +367,7 @@ class Tableaux extends Component {
     const login = document.getElementById("edit-name");
     const pwd = document.getElementById("edit-pass");
     console.log("login : " + login.value);
-    console.log("mdp : " + pwd.value);
+    //console.log("mdp : " + pwd.value);
     // Appel de la méthode pour récupérer le token
     this.state.coopernet.createReqToken(
       login.value,
