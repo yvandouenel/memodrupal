@@ -103,11 +103,11 @@
   max-width: 50%;
   margin: 0 auto;
 }
-/* Termes des thématiques *********************/
-#section-terms {
+#add-or-edit-card #section-terms {
   display: flex;
   justify-content: center;
 }
+/* Termes des thématiques *********************/
 .carte {
   min-height: 40px;
 }
@@ -138,4 +138,9 @@
     overflow-x: auto;
     overflow-y: hidden;
   }
+}
+#section-terms {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
