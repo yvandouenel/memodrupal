@@ -388,7 +388,7 @@ class Coopernet extends Component {
   };
   tokenSuccess = (login, pwd, callbackSuccess, callbackFailed) => {
     console.log("dans tokenSuccess de coopernet");
-    console.log(login, pwd, this.token);
+    //console.log(login, pwd, this.token);
     // utilisation de fetch
     fetch(this.url_serveur + "user/login?_format=json", {
       credentials: "same-origin",
@@ -409,7 +409,7 @@ class Coopernet extends Component {
           console.log("Erreur de login");
           callbackFailed("Erreur de login ou de mot de passe");
         } else {
-          console.log("user", data.current_user);
+          //console.log("user", data.current_user);
           this.user.uid = data.current_user.uid;
           this.user.uname = data.current_user.name;
           this.user.upwd = pwd;
@@ -472,10 +472,10 @@ class Coopernet extends Component {
       let jsonResponse = JSON.parse(req.responseText);
       if (jsonResponse.user === 0) {
         console.log("anonymous user");
-        console.log("User", jsonResponse.user);
+        //console.log("User", jsonResponse.user);
         callbackFailed();
       } else {
-        console.log("User", jsonResponse.user);
+        //console.log("User", jsonResponse.user);
         callbackSuccess();
       }
       //login(this.responseText);
